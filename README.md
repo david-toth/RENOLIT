@@ -6,6 +6,6 @@ I am responsible for creating a database of QC data that allows for user-friendl
 
 ## Author
 * David Toth
-	Student at the University of Notre Dame, Quality Intern at American RENOLIT Corporation
-	Email: dtoth1[at]nd.edu
+	\n Student at the University of Notre Dame, Quality Intern at American RENOLIT Corporation
+	\n Email: dtoth1[at]nd.edu
 				 David.Toth[at]renolit.com
