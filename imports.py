@@ -6,5 +6,5 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sklearn as sk
 from tkinter import *
-print("Imports successful")
 import sqlite as sq
+print("Imports successful")
