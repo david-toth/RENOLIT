@@ -1,4 +1,5 @@
 from imports import *
+import QCDataBase
 
 class RenolitGUI:
     def __init__(self, master):
@@ -20,7 +21,7 @@ class RenolitGUI:
         self.v.set(optionList[0])
         self.option_menu = OptionMenu(master, self.v, *optionList)
         self.option_menu.pack()
-        
+
     def calculate(self):
         x = []
         for i in range(100):
