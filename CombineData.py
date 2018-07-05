@@ -1,4 +1,10 @@
 from imports import *
+"""
+Function that collects several Excel files and concatonates
+them into one large file. Use the first 'if' block you want to write
+directly to an Excel file -- WARNING: VERY SLOW. However, to save time,
+use the second 'if' block, which writes to a CSV file instead.
+"""
 def Combine_Data():
 	if (0):
 		raw_data = gl.glob("O:/QUALITY/QC Data Project/Raw Data/*")

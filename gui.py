@@ -1,5 +1,4 @@
 from imports import *
-import QCDataBase
 
 class RenolitGUI:
 	def __init__(self, master):
