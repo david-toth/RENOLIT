@@ -2,39 +2,69 @@ from imports import *
 
 class RenolitGUI:
 	def __init__(self, master):
-		# Creation of master page
 		self.master = master
 		master.title("Renolit Quality Control")
-		# Creation of Label on page
+
 		self.label = Label(master, text="Quality Control Data Project")
+		self.label.configure(font=(18))
 		self.label.pack()
-		# Creation of button to perform a function
-		self.calc_button = Button(master, text="Calculation", command=self.calculate)
+
+		self.calc_button = Button(master, text="Get Statistics", command=self.Statistics)
 		self.calc_button.pack()
-		# Creation of a button to close page
-		self.close_button = Button(master, text="Close", command=master.quit)
-		self.close_button.pack()
-		# Creation of drop-down option menu
-		optionList = ('A', 'B')
+
+		self.trend = Button(master, text="Show Trend Line", command=self.TrendLine)
+		self.trend.pack()
+
+		optionlist = ['Elongation', 'Gloss', 'Shrinkage', 'Tensile', 'Thickness', 'Surface Tension Corona', '10% Modulus']
 		self.v = StringVar()
-		self.v.set(optionList[0])
-		self.option_menu = OptionMenu(master, self.v, *optionList)
+		self.v.set(optionlist[0])
+		self.option_menu = OptionMenu(master, self.v, *optionlist)
 		self.option_menu.pack()
 
-	def calculate(self):
-		x = []
-		for i in range(100):
-			x.append(i)
-		y = []
-		for i in range(100):
-			y.append(i**2)
-		np_y = np.array(y)
-		np_x = np.array(x)
-		plt.scatter(np_x, np_y)
-		plt.show()
-		plt.close()
+		self.close_button = Button(master, text="Close", command=master.quit)
+		self.close_button.pack()
+
+		img = "C:/Users/usftdt0/Pictures/Renolit.jpg"
+		self.image = ImageTk.PhotoImage(Image.open(img))
+		self.image_label = Label(master, image=self.image)
+		self.image_label.configure(background = 'white')
+		self.image_label.pack(side='bottom', fill='both', expand='yes')
+
+	def Statistics(self):
+		if str(self.v.get()) == 'Elongation':
+			print("Elongation")
+		else:
+			pass
+		if str(self.v.get()) == 'Gloss':
+			print("Gloss")
+		else:
+			pass
+		if str(self.v.get()) == 'Shrinkage':
+			print("Shrinkage")
+		else:
+			pass
+		if str(self.v.get()) == 'Tensile':
+			print("Tensile")
+		else:
+			pass
+		if str(self.v.get()) == 'Thickness':
+			print("Thickness")
+		else:
+			pass
+		if str(self.v.get()) == 'Surface Tension Corona':
+			print("Surface Tension Corona")
+		else:
+			pass
+		if str(self.v.get()) == '10% Modulus':
+			print("10% Modulus")
+		else:
+			pass
+			
+	def TrendLine(self):
+		pass
 
 root = Tk()
 my_gui = RenolitGUI(root)
-root.geometry("500x500")
+root.configure(background='white')
+root.geometry("1000x1000")
 root.mainloop()
