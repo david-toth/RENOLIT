@@ -1,5 +1,7 @@
 import os
 import time
+from time import sleep
+from tqdm import tqdm, trange
 import datetime as dt
 import glob as gl
 import pandas as pd
@@ -10,6 +12,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sklearn as sk
 from tkinter import *
+from tkinter.ttk import *
 from PIL import ImageTk, Image
 import sqlite3 as sq
+import progressbar as pg
 print("Imports successful")
