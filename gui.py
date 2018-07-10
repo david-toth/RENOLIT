@@ -1,4 +1,5 @@
 from imports import *
+
 root = Tk ()
 root.title("American RENOLIT Corp. - Quality Control v0.1")
 root.rowconfigure(0, weight =1)
@@ -15,9 +16,13 @@ root.columnconfigure(3, weight=1)
 root.columnconfigure(4, weight=1)
 root.columnconfigure(5, weight=1)
 root.columnconfigure(6, weight=1)
-# Paths, lists, etc.
+
 database_path = "C:/Users/usftdt0/Documents/CleanDataBase.xlsx"
 customer_path = "C:/Users/usftdt0/Documents/ARC customer list.xlsx"
+img = "C:/Users/usftdt0/Pictures/Renolit.jpg"
+
+filter_customerlist = []
+None_values = []
 
 customer_xlsx = pd.ExcelFile(customer_path)
 df_customers = pd.read_excel(customer_xlsx)
@@ -25,7 +30,7 @@ customerlist = df_customers['Name 1'].tolist()
 
 newlist = [i for i in customerlist if i != 'DO NOT USE' \
 and i != 'DO NOT USE THIS CUSTOMER NUMBER' and i != 'Do Not Use-Duplicate' and i != 'DONOT USE']
-filter_customerlist = []
+
 for i in newlist:
 	if type(i) is str:
 		i.upper()
@@ -33,11 +38,10 @@ for i in newlist:
 	else:
 		i = str(i)
 		filter_customerlist.append(i)
-filter_customerlist = sorted(filter_customerlist)
 
+filter_customerlist = sorted(filter_customerlist)
 optionlist = ['0','Elongation', 'Gloss', 'Shrinkage', 'Tensile', 'Thickness', 'Surface Tension Corona', '10% Modulus']
-img = "C:/Users/usftdt0/Pictures/Renolit.jpg"
-None_values = []
+
 print("Loading Database...")
 article_xlsx = pd.ExcelFile(database_path)
 df_articles = pd.read_excel(article_xlsx, 'QC Data')
@@ -87,45 +91,15 @@ class RenolitGUI:
 		self.predict.configure(width=15)
 		self.predict.grid(column=5, row=3,  padx=10)
 
-		self.progressbar = Progressbar(root, orient=HORIZONTAL, length=200, mode = 'indeterminate')
+		self.progressbar = Progressbar(root, orient=HORIZONTAL, length=200)
+		self.progressbar.configure(mode='indeterminate')
 		self.progressbar.grid(column=4, row=5)
 		self.progressbar_label = Label(root, text='Progress:')
 		self.progressbar_label.grid(column=3, row=5)
-		
-		# self.image = ImageTk.PhotoImage(Image.open(img))
-		# self.image_label = Label(self.master, image=self.image)
-		# self.image_label.configure(background = 'white')
-		# self.image_label.grid()
 
 	def Statistics(self):
-		if str(self.characteristics.get()) == 'Elongation':
-			print("Elongation")
-		else:
-			pass
-		if str(self.characteristics.get()) == 'Gloss':
-			print("Gloss")
-		else:
-			pass
-		if str(self.characteristics.get()) == 'Shrinkage':
-			print("Shrinkage")
-		else:
-			pass
-		if str(self.characteristics.get()) == 'Tensile':
-			print("Tensile")
-		else:
-			pass
-		if str(self.characteristics.get()) == 'Thickness':
-			print("Thickness")
-		else:
-			pass
-		if str(self.characteristics.get()) == 'Surface Tension Corona':
-			print("Surface Tension Corona")
-		else:
-			pass
-		if str(self.characteristics.get()) == '10% Modulus':
-			print("10% Modulus")
-		else:
-			pass
+		self.progressbar.start()
+		pass
 
 	def TrendLine(self):
 		pass
