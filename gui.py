@@ -1,21 +1,6 @@
 from imports import *
 
 root = Tk ()
-root.title("American RENOLIT Corp. - Quality Control v0.1")
-root.rowconfigure(0, weight =1)
-root.rowconfigure(1, weight =1)
-root.rowconfigure(2, weight =1)
-root.rowconfigure(3, weight =1)
-root.rowconfigure(4, weight =1)
-root.rowconfigure(5, weight =1)
-root.rowconfigure(6, weight=1)
-root.columnconfigure(0, weight=1)
-root.columnconfigure(1, weight=1)
-root.columnconfigure(2, weight=1)
-root.columnconfigure(3, weight=1)
-root.columnconfigure(4, weight=1)
-root.columnconfigure(5, weight=1)
-root.columnconfigure(6, weight=1)
 
 database_path = "C:/Users/usftdt0/Documents/CleanDataBase.xlsx"
 customer_path = "C:/Users/usftdt0/Documents/ARC customer list.xlsx"
@@ -106,6 +91,22 @@ class RenolitGUI:
 
 	def Predictions(self):
 		pass
+
+root.title("American RENOLIT Corp. - Quality Control v0.1")
+root.rowconfigure(0, weight =1)
+root.rowconfigure(1, weight =1)
+root.rowconfigure(2, weight =1)
+root.rowconfigure(3, weight =1)
+root.rowconfigure(4, weight =1)
+root.rowconfigure(5, weight =1)
+root.rowconfigure(6, weight=1)
+root.columnconfigure(0, weight=1)
+root.columnconfigure(1, weight=1)
+root.columnconfigure(2, weight=1)
+root.columnconfigure(3, weight=1)
+root.columnconfigure(4, weight=1)
+root.columnconfigure(5, weight=1)
+root.columnconfigure(6, weight=1)
 
 my_gui = RenolitGUI(root)
 root.mainloop()
