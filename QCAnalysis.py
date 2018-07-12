@@ -117,13 +117,13 @@ class RenolitGUI:
 		Please note that no analytical tools are available at this time, as the program is under construction.")
 
 	def Statistics(self):
-		pass
+		messagebox.showinfo(title="Get Statistics", message="Statistics are not yet available.")
 
 	def TrendLine(self):
-		pass
+		messagebox.showinfo(title="Show Trend Line", message="The trend line feature is not yet available.")
 
 	def Predictions(self):
-		pass
+		messagebox.showinfo(title='Predictive Tools', message="Predictive features are not yet available.")
 
 root.title("American RENOLIT Corp. - Quality Control BETA")
 root.rowconfigure(0, weight =1)
