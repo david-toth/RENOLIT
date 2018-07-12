@@ -113,6 +113,9 @@ class RenolitGUI:
 		self.progressbar_label = Label(root, text='Progress:')
 		self.progressbar_label.grid(column=4, row=6, sticky='se')
 
+		messagebox.showinfo(title="Welcome", message="Welcome to the ARC Quality Control Analysis Software. \
+		Please note that no analytical tools are available at this time, as the program is under construction.")
+
 	def Statistics(self):
 		pass
 

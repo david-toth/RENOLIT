@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import sklearn as sk
 from tkinter import *
 from tkinter.ttk import *
+from tkinter import messagebox
 from PIL import ImageTk, Image
 # import sqlite3 as sq
 # import progressbar as pg
