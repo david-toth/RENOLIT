@@ -117,11 +117,7 @@ class RenolitGUI:
 		Please note that no analytical tools are available at this time, as the program is under construction.")
 
 	def Statistics(self):
-<<<<<<< HEAD
 		messagebox.showinfo(title="Get Statistics", message="Statistics are not yet available.")
-=======
-		messagebox.showinfo(title="Get Statistics", message="The statistics tool is not functional yet.")
->>>>>>> d810a157027768039ab1d4b9c8da8c8b80ad9945
 
 	def TrendLine(self):
 		messagebox.showinfo(title="Show Trend Line", message="The trend line feature is not yet available.")
