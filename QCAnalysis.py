@@ -2,9 +2,8 @@ from imports import *
 
 root = Tk ()
 
-database_path = "C:/Users/usftdt0/Documents/CleanDataBase.xlsx"
-customer_path = "C:/Users/usftdt0/Documents/ARC customer list.xlsx"
-img = "C:/Users/usftdt0/Pictures/Renolit.jpg"
+database_path = "O:/Quality/QC Data Project/CleanDataBase.xlsx"
+customer_path = "O:/Quality/QC Data Project/ARC customer list - copy.xlsx"
 
 filter_customerlist = []
 None_values = []
@@ -123,7 +122,7 @@ class RenolitGUI:
 	def Predictions(self):
 		pass
 
-root.title("American RENOLIT Corp. - Quality Control v0.1")
+root.title("American RENOLIT Corp. - Quality Control BETA")
 root.rowconfigure(0, weight =1)
 root.rowconfigure(1, weight =1)
 root.rowconfigure(2, weight =1)
