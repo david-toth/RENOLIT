@@ -1,5 +1,5 @@
 from imports import *
-print("Hello, Shawn.")
+
 root = Tk ()
 
 database_path = "O:/Quality/QC Data Project/CleanDataBase.xlsx"
@@ -33,21 +33,26 @@ optionlist = [
 				"Thickness heat side"
 ]
 article_list = []
-print("Loading Database...")
+start_time = time.time()
+print("Loading Database...Wait time is approximately 2 minutes")
 article_xlsx = pd.ExcelFile(database_path)
 df_articles = pd.read_excel(article_xlsx, 'QC Data')
 articlelist = df_articles['PH Mat. No.'].tolist()
 for i in articlelist:
-	if type(i) is str:
+	if type(i) is str and i not in article_list:
 		article_list.append(i)
 	else:
 		i = str(i)
-		article_list.append(i)
+		if i not in article_list:
+			article_list.append(i)
 article_list = sorted(article_list)
-print("Database Loaded!")
+print("Database Loaded in %s minutes" % (float((time.time() - start_time)/60)))
 
 class RenolitGUI:
 	def __init__(self, root):
+		self.df = pd.read_excel(article_xlsx)
+		self.selection_list = []
+
 		self.label = Label(root, text="ARC QC Data Analytics")
 		self.label.configure(font=('Arial', 18, 'bold'))
 		self.label.grid(column=1, row=0, sticky=(N),  padx=5, pady=5)
@@ -57,10 +62,11 @@ class RenolitGUI:
 		self.customer_label = Label(root, text="Customers")
 		self.customer_label.configure(font=('Arial', 10, 'bold'))
 		self.customer_label.grid(column=1, row=1, sticky=(S,W), padx = (10,0))
-		# self.customer_menu = Combobox(root, textvariable = self.customer, values = filter_customerlist)
-		self.customer_menu = Listbox(root,width = 45,selectmode=EXTENDED)
+		self.customer_menu = Listbox(root,width = 45,selectmode=EXTENDED, takefocus=0)
 		for i in filter_customerlist:
 			self.customer_menu.insert(END, i)
+		self.customer_menu.bind("<<ListboxSelect>>", self.DoubleClick)
+		self.customer_menu.bind("<Button-3>", self.RemoveEntry)
 		self.customer_menu.grid(column=1, row=2, sticky=(N,W), padx = (10,0))
 		self.scrollbar = Scrollbar(root, orient=VERTICAL, command=self.customer_menu.yview)
 		self.scrollbar.grid(column=2, row=2, sticky='ns')
@@ -71,10 +77,11 @@ class RenolitGUI:
 		self.article_label = Label(root, text="Article Number")
 		self.article_label.configure(font=('Arial', 10, 'bold'))
 		self.article_label.grid(column=1, row=3, sticky=(N,W), padx = (10,0))
-		# self.article_option_menu = Combobox(root, textvariable=self.article, values = article_list)
-		self.article_option_menu = Listbox(root, width=45, selectmode=EXTENDED)
+		self.article_option_menu = Listbox(root, width=45, selectmode=EXTENDED, takefocus=0)
 		for i in article_list:
 			self.article_option_menu.insert(END, i)
+		self.article_option_menu.bind("<<ListboxSelect>>", self.DoubleClick)
+		self.article_option_menu.bind("<Button-3>", self.RemoveEntry)
 		self.article_option_menu.grid(column=1, row=4, sticky=(N,W), padx = (10,0), pady=(0,10))
 		self.scrollbar2 = Scrollbar(root, orient=VERTICAL, command=self.article_option_menu.yview)
 		self.scrollbar2.grid(column=2, row=4, sticky='ns')
@@ -85,15 +92,15 @@ class RenolitGUI:
 		self.characteristics_label = Label(root, text="QC Characteristics")
 		self.characteristics_label.configure(font=('Arial', 10, 'bold'))
 		self.characteristics_label.grid(column=1, row=5, sticky=(N,W), padx = (10,0))
-		# self.characteristics_option_menu = Combobox(root, textvariable = self.characteristics, values = optionlist)
-		self.characteristics_option_menu = Listbox(root, width=45, selectmode=EXTENDED)
+		self.characteristics_option_menu = Listbox(root, width=45, selectmode=SINGLE, takefocus=0)
 		for i in optionlist:
 			self.characteristics_option_menu.insert(END, i)
+		self.characteristics_option_menu.bind("<<ListboxSelect>>", self.DoubleClick)
+		self.characteristics_option_menu.bind("<Button-3>", self.RemoveEntry)
 		self.characteristics_option_menu.grid(column=1, row=6, sticky=(N,W), padx = (10,0), pady=(0,10))
 		self.scrollbar3 = Scrollbar(root, orient=VERTICAL, command=self.characteristics_option_menu.yview)
 		self.scrollbar3.grid(column=2, row=6, sticky='ns')
 		self.characteristics_option_menu.configure(yscrollcommand = self.scrollbar3.set)
-		# self.characteristics_option_menu.grid(column=1, row=6, sticky=(N,W), padx = (10,0))
 
 		self.calc_button = Button(root, text="Get Statistics", command=self.Statistics)
 		self.calc_button.configure(width=15)
@@ -119,11 +126,66 @@ class RenolitGUI:
 	def Statistics(self):
 		messagebox.showinfo(title="Get Statistics", message="Statistics are not yet available.")
 
+
 	def TrendLine(self):
 		messagebox.showinfo(title="Show Trend Line", message="The trend line feature is not yet available.")
 
 	def Predictions(self):
 		messagebox.showinfo(title='Predictive Tools', message="Predictive features are not yet available.")
+
+	def on_customer_menu(idx, val):
+		print('Customer menu idx: %s, value: %s' % (idx, val))
+
+	def on_article_menu(idx, val):
+		print('Article menu idx: %s, value: %s' % (idx, val))
+
+	def on_characteristics_menu(idx, val):
+		print('Characteristics menu idx: %s, value: %s' % (idx, val))
+
+	def DoubleClick(self, event):
+		widget = event.widget
+		try:
+			selection = widget.curselection()
+			for i in selection:
+				value = widget.get(i)
+				if value not in self.selection_list:
+					self.selection_list.append(value)
+				else:
+					pass 
+			for j in self.selection_list:
+				print(j)
+			print("---------")
+		except IndexError:
+			return
+		if self is self.customer_menu:
+			return on_customer_menu(idx, widget.get(idx))
+		if self is self.article_option_menu:
+			return on_article_menu(idx, widget.get(idx))
+		if self is self.characteristics_option_menu:
+			return on_characteristics_menu(idx, widget.get(idx))
+
+	def RemoveEntry(self, event):
+		widget = event.widget
+		if (0):
+			try:
+				selection = widget.curselection()
+				for i in selection:
+					value = widget.get(i)
+					self.selection_list.remove(value)
+				for j in self.selection_list:
+					print(j)
+				print("---------")
+			except IndexError:
+				return
+			if self is self.customer_menu:
+				return on_customer_menu(idx, widget.get(idx))
+			if self is self.article_option_menu:
+				return on_article_menu(idx, widget.get(idx))
+			if self is self.characteristics_option_menu:
+				return on_characteristics_menu(idx, widget.get(idx))
+		if (1):
+			self.selection_list = []
+			print("------------")
 
 root.title("American RENOLIT Corp. - Quality Control BETA")
 root.rowconfigure(0, weight =1)

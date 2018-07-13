@@ -11,10 +11,14 @@ from openpyxl import load_workbook
 import numpy as np
 import matplotlib.pyplot as plt
 import sklearn as sk
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import *
+from sklearn.linear_model import *
+from sklearn.svm import *
+from sklearn.metrics import *
+from sklearn.grid_search import * 
 from tkinter import *
 from tkinter.ttk import *
 from tkinter import messagebox
 from PIL import ImageTk, Image
-# import sqlite3 as sq
-# import progressbar as pg
 print("Imports successful")
