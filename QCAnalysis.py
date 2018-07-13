@@ -1,5 +1,5 @@
 from imports import *
-
+print("Hello, Shawn.")
 root = Tk ()
 
 database_path = "O:/Quality/QC Data Project/CleanDataBase.xlsx"
