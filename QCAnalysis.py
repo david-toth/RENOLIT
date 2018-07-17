@@ -34,9 +34,10 @@ optionlist = [
 ]
 article_list = []
 start_time = time.time()
-print("Loading Database...Wait time is approximately 2 minutes")
+print("Loading Database...Wait time is approximately 3 minutes")
 article_xlsx = pd.ExcelFile(database_path)
 df_articles = pd.read_excel(article_xlsx, 'QC Data')
+df = df_articles
 articlelist = df_articles['PH Mat. No.'].tolist()
 for i in articlelist:
 	if type(i) is str and i not in article_list:
@@ -52,6 +53,7 @@ class RenolitGUI:
 	def __init__(self, root):
 		self.df = pd.read_excel(article_xlsx)
 		self.selection_list = []
+		self.qc_charac_list = []
 
 		self.label = Label(root, text="ARC QC Data Analytics")
 		self.label.configure(font=('Arial', 18, 'bold'))
@@ -102,17 +104,28 @@ class RenolitGUI:
 		self.scrollbar3.grid(column=2, row=6, sticky='ns')
 		self.characteristics_option_menu.configure(yscrollcommand = self.scrollbar3.set)
 
+		self.check_label = Label(root, text="Select filter(s):")
+		self.check_label.grid(column=4, row=3)
+
+		self.var1 = IntVar()
+		self.checkbox_cust = Checkbutton(root, text='Customer', variable=self.var1)
+		self.checkbox_cust.grid(column=5, row=3, sticky='w')
+
+		self.var2 = IntVar()
+		self.checkbox_article = Checkbutton(root, text='Article No.', variable=self.var2)
+		self.checkbox_article.grid(column=5, row=3, sticky='e')
+
 		self.calc_button = Button(root, text="Get Statistics", command=self.Statistics)
 		self.calc_button.configure(width=15)
-		self.calc_button.grid(column=4, row=1,  padx=10)
+		self.calc_button.grid(column=4, row=2,  padx=10)
 
 		self.trend = Button(root, text="Show Trend Line", command=self.TrendLine)
 		self.trend.configure(width=15)
-		self.trend.grid(column=5, row=1,  padx=10)
+		self.trend.grid(column=5, row=2,  padx=10)
 
 		self.predict = Button(root, text="Predictive Tools", command=self.Predictions)
 		self.predict.configure(width=15)
-		self.predict.grid(column=6, row=1,  padx=10)
+		self.predict.grid(column=6, row=2,  padx=10)
 
 		self.progressbar = Progressbar(root, orient=HORIZONTAL, length=200)
 		self.progressbar.configure(mode='indeterminate')
@@ -120,15 +133,160 @@ class RenolitGUI:
 		self.progressbar_label = Label(root, text='Progress:')
 		self.progressbar_label.grid(column=4, row=6, sticky='se')
 
+		self.quit_button = Button(root, text='Quit', command=self.Quit)
+		self.quit_button.configure(width=15)
+		self.quit_button.grid(column=6, row=0, padx=10)
+
 		messagebox.showinfo(title="Welcome", message="Welcome to the ARC Quality Control Analysis Software. \
 		Please note that no analytical tools are available at this time, as the program is under construction.")
 
 	def Statistics(self):
 		messagebox.showinfo(title="Get Statistics", message="Statistics are not yet available.")
 
-
 	def TrendLine(self):
-		messagebox.showinfo(title="Show Trend Line", message="The trend line feature is not yet available.")
+		# plt.ion()
+		for selection in self.selection_list:
+			if selection in filter_customerlist and self.var1.get() == 1:
+				print("Customer:", selection)
+				cust_name = selection
+			if selection in article_list and self.var2.get() == 1:
+				print('Article:', selection)
+				article_no = selection
+			if selection in optionlist:
+				print('QC Characteristic:', selection)
+				qc_characteristic = selection
+				self.qc_charac_list.append(selection)
+		if self.var1.get() == 1 and self.var2.get() == 1:
+			row = df.loc[(df['Charac.'] == qc_characteristic) & (df['Cust. Name'] == cust_name) & (df['PH Mat. No.'] == article_no)]
+			# print(row)
+			# print(row.columns)
+		if self.var1.get() == 1 and self.var2.get() == 0:
+			row = df.loc[(df['Charac.'] == qc_characteristic) & (df['Cust. Name'] == cust_name)]
+			# print(row)
+			# print(row.columns)
+		if self.var1.get() == 0 and self.var2.get() == 1:
+			row = df.loc[(df['Charac.'] == qc_characteristic) & (df['PH Mat. No.'] == article_no)]
+			# print(row)
+			# print(row.columns)
+		if len(self.qc_charac_list) <= 1 and len(self.selection_list) <= 3:
+			if str(qc_characteristic) == '10% Modulus & Elongation MD aged':
+				x = row.index.tolist()
+				y = row['Avg'].tolist()
+				raw_data = plt.scatter(x,y, label='Data')
+				low = row['Lower tolerance'].mean()
+				high = row['Upper tolerance'].mean()
+				lower_tolerance = plt.axhline(y=low, color='g', label='Lower tolerance')
+				upper_tolerance = plt.axhline(y=high, color='r', label='Upper tolerance')
+				plt.legend()
+				plt.title(str(qc_characteristic))
+				self.qc_charac_list = []
+				self.selection_list = []
+				plt.show()
+				plt.close()
+			# else:
+			# 	plt.close("all")
+			if str(qc_characteristic) == "Color Lab DE*":
+				x = row.index.tolist()
+				y = row['Avg'].tolist()
+				raw_data = plt.scatter(x,y, label='Data')
+				target = row['Expected val.'].mean()
+				target_plot = plt.axhline(y=target, color='g', label='Target value')
+				plt.legend()
+				plt.title(str(qc_characteristic))
+				self.qc_charac_list = []
+				self.selection_list = []
+				plt.show()
+				plt.close()
+			# else:
+			# 	plt.close("all")
+			if str(qc_characteristic) == "Elongation at Break MD aged":
+				x = row.index.tolist()
+				y = row['Avg'].tolist()
+				raw_data = plt.scatter(x,y, label='Data')
+				min = row['Lower tolerance'].mean()
+				min_plot = plt.axhline(y=min, color='g', label='Lower tolerance')
+				plt.legend()
+				plt.title(str(qc_characteristic))
+				self.qc_charac_list = []
+				self.selection_list = []
+				plt.show()
+				plt.close()
+			# else:
+			# 	plt.close("all")
+			if str(qc_characteristic) == "Gloss 20° drive side" or "Gloss 20° heat side" or "Gloss 60° drive side" or "Gloss 60° heat side" or "Gloss 60° lacquer drive side" or "Gloss 85° drive side":
+				x = row.index.tolist()
+				y = row['Avg'].tolist()
+				raw_data = plt.scatter(x,y, label='Data')
+				min = row['Lower tolerance'].mean()
+				min_plot = plt.axhline(y=min, color='g', label='Lower tolerance')
+				plt.legend()
+				plt.title(str(qc_characteristic))
+				self.qc_charac_list = []
+				self.selection_list = []
+				plt.show()
+				plt.close()
+			# else:
+			# 	plt.close("all")
+			if str(qc_characteristic) == "Shrink (10'/ 70°) drive side" or "Shrink (10'/ 80°) drive side" or "Shrink (10'/ 100°) drive side":
+				x = row.index.tolist()
+				y = row['Avg'].tolist()
+				raw_data = plt.scatter(x,y, label='Data')
+				max = row['Upper tolerance'].mean()
+				max_plot = plt.axhline(y=max, color='r', label='Upper tolerance')
+				plt.legend()
+				plt.title(str(qc_characteristic))
+				self.qc_charac_list = []
+				self.selection_list = []
+				plt.show()
+				plt.close()
+			# else:
+			# 	plt.close("all")
+			if str(qc_characteristic) == "Surface Tension Corona":
+				x = row.index.tolist()
+				y = row['Avg'].tolist()
+				raw_data = plt.scatter(x,y, label='Data')
+				min = row['Lower tolerance'].mean()
+				min_plot = plt.axhline(y=min, color='g', label='Lower tolerance')
+				plt.legend()
+				plt.title(str(qc_characteristic))
+				self.qc_charac_list = []
+				self.selection_list = []
+				plt.show()
+				plt.close()
+			# else:
+			# 	plt.close("all")
+			if str(qc_characteristic) == "Tensile stress at break MD aged":
+				x = row.index.tolist()
+				y = row['Avg'].tolist()
+				raw_data = plt.scatter(x,y, label='Data')
+				target = row['Expected val.'].mean()
+				target_plot = plt.axhline(y=target, color='r', label='Target value')
+				plt.legend()
+				plt.title(str(qc_characteristic))
+				self.qc_charac_list = []
+				self.selection_list = []
+				plt.show()
+				plt.close()
+			# else:
+			# 	plt.close("all")
+			if str(qc_characteristic) == "Thickness drive side" or "Thickness heat side":
+				x = row.index.tolist()
+				y = row['Avg'].tolist()
+				raw_data = plt.scatter(x,y, label='Data')
+				min = row['Lower tolerance'].mean()
+				max = row['Upper tolerance'].mean()
+				target = row['Expected val.'].mean()
+				min_plot = plt.axhline(y=min, color='g', label='Lower tolerance')
+				max_plot = plt.axhline(y=max, color='r', label='Upper tolerance')
+				target_plot = plt.axhline(y=target, color='y', label='Target value')
+				plt.legend()
+				plt.title(str(qc_characteristic))
+				self.qc_charac_list = []
+				self.selection_list = []
+				plt.show()
+				plt.close()
+			# else:
+			# 	plt.close("all")
 
 	def Predictions(self):
 		messagebox.showinfo(title='Predictive Tools', message="Predictive features are not yet available.")
@@ -151,7 +309,7 @@ class RenolitGUI:
 				if value not in self.selection_list:
 					self.selection_list.append(value)
 				else:
-					pass 
+					pass
 			for j in self.selection_list:
 				print(j)
 			print("---------")
@@ -185,7 +343,16 @@ class RenolitGUI:
 				return on_characteristics_menu(idx, widget.get(idx))
 		if (1):
 			self.selection_list = []
+			self.qc_charac_list = []
 			print("------------")
+
+	def Quit(self):
+		figs = list(map(plt.figure, plt.get_fignums()))
+		for i in figs:
+			plt.close(i)
+		plt.ion()
+		plt.close("all")
+		root.destroy()
 
 root.title("American RENOLIT Corp. - Quality Control BETA")
 root.rowconfigure(0, weight =1)
@@ -202,6 +369,5 @@ root.columnconfigure(3, weight=1)
 root.columnconfigure(4, weight=1)
 root.columnconfigure(5, weight=1)
 root.columnconfigure(6, weight=1)
-
 my_gui = RenolitGUI(root)
 root.mainloop()
