@@ -28,8 +28,8 @@ optionlist = [
 				'10% Modulus & Elongation MD aged', "Color Lab DE*", "Elongation at Break MD aged",
 				"Gloss 20° drive side", "Gloss 20° heat side", "Gloss 20° drive side", "Gloss 60° drive side",
 				"Gloss 60° heat side", "Gloss 60° lacquer drive side", "Gloss 85° drive side",
-			 	"Shrink (10'/ 70°) drive side", "Shrink (10'/ 80°) drive side", "Shrink (10'/ 100°) drive side",
-				"Surface Tension Corona", "Tensile stress at break MD aged", "Thickness drive side",
+			 	"Shrink (10'/70°) drive side", "Shrink (10'/80°) drive side", "Shrink (10'/100°) drive side",
+				"Surface Tension corona", "Tensile stress at break MD aged", "Thickness drive side",
 				"Thickness heat side"
 ]
 article_list = []
@@ -54,6 +54,7 @@ class RenolitGUI:
 		self.df = pd.read_excel(article_xlsx)
 		self.selection_list = []
 		self.qc_charac_list = []
+		self.legend_list = []
 
 		self.label = Label(root, text="ARC QC Data Analytics")
 		self.label.configure(font=('Arial', 18, 'bold'))
@@ -105,27 +106,27 @@ class RenolitGUI:
 		self.characteristics_option_menu.configure(yscrollcommand = self.scrollbar3.set)
 
 		self.check_label = Label(root, text="Select filter(s):")
-		self.check_label.grid(column=4, row=3)
+		self.check_label.grid(column=4, row=1)
 
 		self.var1 = IntVar()
 		self.checkbox_cust = Checkbutton(root, text='Customer', variable=self.var1)
-		self.checkbox_cust.grid(column=5, row=3, sticky='w')
+		self.checkbox_cust.grid(column=5, row=1, sticky='w')
 
 		self.var2 = IntVar()
 		self.checkbox_article = Checkbutton(root, text='Article No.', variable=self.var2)
-		self.checkbox_article.grid(column=5, row=3, sticky='e')
+		self.checkbox_article.grid(column=5, row=1, sticky='e')
 
 		self.calc_button = Button(root, text="Get Statistics", command=self.Statistics)
 		self.calc_button.configure(width=15)
-		self.calc_button.grid(column=4, row=2,  padx=10)
+		self.calc_button.grid(column=4, row=3,  padx=10)
 
 		self.trend = Button(root, text="Show Trend Line", command=self.TrendLine)
 		self.trend.configure(width=15)
-		self.trend.grid(column=5, row=2,  padx=10)
+		self.trend.grid(column=5, row=3,  padx=10)
 
 		self.predict = Button(root, text="Predictive Tools", command=self.Predictions)
 		self.predict.configure(width=15)
-		self.predict.grid(column=6, row=2,  padx=10)
+		self.predict.grid(column=6, row=3,  padx=10)
 
 		self.progressbar = Progressbar(root, orient=HORIZONTAL, length=200)
 		self.progressbar.configure(mode='indeterminate')
@@ -137,14 +138,13 @@ class RenolitGUI:
 		self.quit_button.configure(width=15)
 		self.quit_button.grid(column=6, row=0, padx=10)
 
+		self.message = Message(root)
+		self.message.grid(column=4, row=4, columnspan=3, rowspan=2)
+
 		messagebox.showinfo(title="Welcome", message="Welcome to the ARC Quality Control Analysis Software. \
 		Please note that no analytical tools are available at this time, as the program is under construction.")
 
 	def Statistics(self):
-		messagebox.showinfo(title="Get Statistics", message="Statistics are not yet available.")
-
-	def TrendLine(self):
-		# plt.ion()
 		for selection in self.selection_list:
 			if selection in filter_customerlist and self.var1.get() == 1:
 				print("Customer:", selection)
@@ -158,147 +158,62 @@ class RenolitGUI:
 				self.qc_charac_list.append(selection)
 		if self.var1.get() == 1 and self.var2.get() == 1:
 			row = df.loc[(df['Charac.'] == qc_characteristic) & (df['Cust. Name'] == cust_name) & (df['PH Mat. No.'] == article_no)]
-			# print(row)
-			# print(row.columns)
+			print(row)
 		if self.var1.get() == 1 and self.var2.get() == 0:
 			row = df.loc[(df['Charac.'] == qc_characteristic) & (df['Cust. Name'] == cust_name)]
-			# print(row)
-			# print(row.columns)
+			print(row)
 		if self.var1.get() == 0 and self.var2.get() == 1:
 			row = df.loc[(df['Charac.'] == qc_characteristic) & (df['PH Mat. No.'] == article_no)]
-			# print(row)
-			# print(row.columns)
-		if len(self.qc_charac_list) <= 1 and len(self.selection_list) <= 3:
-			if str(qc_characteristic) == '10% Modulus & Elongation MD aged':
-				x = row.index.tolist()
-				y = row['Avg'].tolist()
-				raw_data = plt.scatter(x,y, label='Data')
-				low = row['Lower tolerance'].mean()
-				high = row['Upper tolerance'].mean()
-				lower_tolerance = plt.axhline(y=low, color='g', label='Lower tolerance')
-				upper_tolerance = plt.axhline(y=high, color='r', label='Upper tolerance')
-				plt.legend()
-				plt.title(str(qc_characteristic))
-				self.qc_charac_list = []
-				self.selection_list = []
-				plt.show()
-				plt.close()
-			# else:
-			# 	plt.close("all")
-			if str(qc_characteristic) == "Color Lab DE*":
-				x = row.index.tolist()
-				y = row['Avg'].tolist()
-				raw_data = plt.scatter(x,y, label='Data')
-				target = row['Expected val.'].mean()
-				target_plot = plt.axhline(y=target, color='g', label='Target value')
-				plt.legend()
-				plt.title(str(qc_characteristic))
-				self.qc_charac_list = []
-				self.selection_list = []
-				plt.show()
-				plt.close()
-			# else:
-			# 	plt.close("all")
-			if str(qc_characteristic) == "Elongation at Break MD aged":
-				x = row.index.tolist()
-				y = row['Avg'].tolist()
-				raw_data = plt.scatter(x,y, label='Data')
-				min = row['Lower tolerance'].mean()
-				min_plot = plt.axhline(y=min, color='g', label='Lower tolerance')
-				plt.legend()
-				plt.title(str(qc_characteristic))
-				self.qc_charac_list = []
-				self.selection_list = []
-				plt.show()
-				plt.close()
-			# else:
-			# 	plt.close("all")
-			if str(qc_characteristic) == "Gloss 20° drive side" or "Gloss 20° heat side" or "Gloss 60° drive side" or "Gloss 60° heat side" or "Gloss 60° lacquer drive side" or "Gloss 85° drive side":
-				x = row.index.tolist()
-				y = row['Avg'].tolist()
-				raw_data = plt.scatter(x,y, label='Data')
-				min = row['Lower tolerance'].mean()
-				min_plot = plt.axhline(y=min, color='g', label='Lower tolerance')
-				plt.legend()
-				plt.title(str(qc_characteristic))
-				self.qc_charac_list = []
-				self.selection_list = []
-				plt.show()
-				plt.close()
-			# else:
-			# 	plt.close("all")
-			if str(qc_characteristic) == "Shrink (10'/ 70°) drive side" or "Shrink (10'/ 80°) drive side" or "Shrink (10'/ 100°) drive side":
-				x = row.index.tolist()
-				y = row['Avg'].tolist()
-				raw_data = plt.scatter(x,y, label='Data')
-				max = row['Upper tolerance'].mean()
-				max_plot = plt.axhline(y=max, color='r', label='Upper tolerance')
-				plt.legend()
-				plt.title(str(qc_characteristic))
-				self.qc_charac_list = []
-				self.selection_list = []
-				plt.show()
-				plt.close()
-			# else:
-			# 	plt.close("all")
-			if str(qc_characteristic) == "Surface Tension Corona":
-				x = row.index.tolist()
-				y = row['Avg'].tolist()
-				raw_data = plt.scatter(x,y, label='Data')
-				min = row['Lower tolerance'].mean()
-				min_plot = plt.axhline(y=min, color='g', label='Lower tolerance')
-				plt.legend()
-				plt.title(str(qc_characteristic))
-				self.qc_charac_list = []
-				self.selection_list = []
-				plt.show()
-				plt.close()
-			# else:
-			# 	plt.close("all")
-			if str(qc_characteristic) == "Tensile stress at break MD aged":
-				x = row.index.tolist()
-				y = row['Avg'].tolist()
-				raw_data = plt.scatter(x,y, label='Data')
-				target = row['Expected val.'].mean()
-				target_plot = plt.axhline(y=target, color='r', label='Target value')
-				plt.legend()
-				plt.title(str(qc_characteristic))
-				self.qc_charac_list = []
-				self.selection_list = []
-				plt.show()
-				plt.close()
-			# else:
-			# 	plt.close("all")
-			if str(qc_characteristic) == "Thickness drive side" or "Thickness heat side":
-				x = row.index.tolist()
-				y = row['Avg'].tolist()
-				raw_data = plt.scatter(x,y, label='Data')
-				min = row['Lower tolerance'].mean()
-				max = row['Upper tolerance'].mean()
-				target = row['Expected val.'].mean()
-				min_plot = plt.axhline(y=min, color='g', label='Lower tolerance')
-				max_plot = plt.axhline(y=max, color='r', label='Upper tolerance')
-				target_plot = plt.axhline(y=target, color='y', label='Target value')
-				plt.legend()
-				plt.title(str(qc_characteristic))
-				self.qc_charac_list = []
-				self.selection_list = []
-				plt.show()
-				plt.close()
-			# else:
-			# 	plt.close("all")
+			print(row)
+		stats = row['Avg'].describe()
+		self.message.config(text=str(stats))
+
+	def TrendLine(self):
+		for selection in self.selection_list:
+			if selection in filter_customerlist and self.var1.get() == 1:
+				print("Customer:", selection)
+				cust_name = selection
+			if selection in article_list and self.var2.get() == 1:
+				print('Article:', selection)
+				article_no = selection
+			if selection in optionlist:
+				print('QC Characteristic:', selection)
+				qc_characteristic = selection
+				self.qc_charac_list.append(selection)
+		if self.var1.get() == 1 and self.var2.get() == 1:
+			row = df.loc[(df['Charac.'] == qc_characteristic) & (df['Cust. Name'] == cust_name) & (df['PH Mat. No.'] == article_no)]
+			print(row)
+		if self.var1.get() == 1 and self.var2.get() == 0:
+			row = df.loc[(df['Charac.'] == qc_characteristic) & (df['Cust. Name'] == cust_name)]
+			print(row)
+		if self.var1.get() == 0 and self.var2.get() == 1:
+			row = df.loc[(df['Charac.'] == qc_characteristic) & (df['PH Mat. No.'] == article_no)]
+			print(row)
+
+		years = YearLocator()
+		months = MonthLocator()
+		yrsformatter = DateFormatter('%Y')
+		mnthsformatter = DateFormatter('%M')
+
+		x_ = row['Dates'].values
+		y_ = row['Avg'].values
+		fig, ax = plt.subplots()
+		ax.plot(x_, y_, 'bo')
+		# plt.legend()
+		plt.title(str(qc_characteristic))
+		plt.ylabel(str())
+		ax.xaxis.set_major_locator(years)
+		ax.xaxis.set_major_formatter(yrsformatter)
+		ax.xaxis.set_minor_locator(months)
+		self.qc_charac_list = []
+		self.selection_list = []
+		self.legend_list = []
+		fig.autofmt_xdate()
+		plt.show()
+		plt.close()
 
 	def Predictions(self):
 		messagebox.showinfo(title='Predictive Tools', message="Predictive features are not yet available.")
-
-	def on_customer_menu(idx, val):
-		print('Customer menu idx: %s, value: %s' % (idx, val))
-
-	def on_article_menu(idx, val):
-		print('Article menu idx: %s, value: %s' % (idx, val))
-
-	def on_characteristics_menu(idx, val):
-		print('Characteristics menu idx: %s, value: %s' % (idx, val))
 
 	def DoubleClick(self, event):
 		widget = event.widget
@@ -313,14 +228,8 @@ class RenolitGUI:
 			for j in self.selection_list:
 				print(j)
 			print("---------")
-		except IndexError:
-			return
-		if self is self.customer_menu:
-			return on_customer_menu(idx, widget.get(idx))
-		if self is self.article_option_menu:
-			return on_article_menu(idx, widget.get(idx))
-		if self is self.characteristics_option_menu:
-			return on_characteristics_menu(idx, widget.get(idx))
+		except:
+			pass
 
 	def RemoveEntry(self, event):
 		widget = event.widget
@@ -344,6 +253,7 @@ class RenolitGUI:
 		if (1):
 			self.selection_list = []
 			self.qc_charac_list = []
+			self.legend_list = []
 			print("------------")
 
 	def Quit(self):
