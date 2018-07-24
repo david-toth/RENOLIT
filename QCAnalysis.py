@@ -1,6 +1,7 @@
 from imports import *
 
 root = Tk ()
+tqdm.pandas()
 
 database_path = "O:/Quality/QC Data Project/CleanDataBase.xlsx"
 customer_path = "O:/Quality/QC Data Project/ARC customer list - copy.xlsx"
@@ -10,6 +11,7 @@ None_values = []
 
 customer_xlsx = pd.ExcelFile(customer_path)
 df_customers = pd.read_excel(customer_xlsx)
+
 customerlist = df_customers['Name 1'].tolist()
 
 newlist = [i for i in customerlist if i != 'DO NOT USE' \
@@ -35,8 +37,8 @@ optionlist = [
 article_list = []
 start_time = time.time()
 print("Loading Database...Wait time is approximately 3 minutes")
-article_xlsx = pd.ExcelFile(database_path)
-df_articles = pd.read_excel(article_xlsx, 'QC Data')
+# article_xlsx = pd.ExcelFile(database_path)
+df_articles = pd.read_excel(database_path, 'QC Data')
 df = df_articles
 articlelist = df_articles['PH Mat. No.'].tolist()
 for i in articlelist:
@@ -51,7 +53,7 @@ print("Database Loaded in %s minutes" % (float((time.time() - start_time)/60)))
 
 class RenolitGUI:
 	def __init__(self, root):
-		self.df = pd.read_excel(article_xlsx)
+		self.df = pd.read_excel(database_path, 'QC Data')
 		self.selection_list = []
 		self.qc_charac_list = []
 		self.legend_list = []
@@ -110,39 +112,53 @@ class RenolitGUI:
 
 		self.var1 = IntVar()
 		self.checkbox_cust = Checkbutton(root, text='Customer', variable=self.var1)
-		self.checkbox_cust.grid(column=5, row=1, sticky='w')
+		self.checkbox_cust.grid(column=5, row=1, padx=5)
 
 		self.var2 = IntVar()
 		self.checkbox_article = Checkbutton(root, text='Article No.', variable=self.var2)
-		self.checkbox_article.grid(column=5, row=1, sticky='e')
+		self.checkbox_article.grid(column=6, row=1,padx=5)
+
+		self.PlotTitle_Label = Label(root, text="Enter plot title:")
+		self.PlotTitle_Label.grid(column=4, row=2)
+
+		self.PlotTitle = Entry(root)
+		self.PlotTitle.grid(column=5, row=2, sticky='w')
+		self.PlotTitle.focus()
+
+		self.UpperToleranceLabel = Label(root, text='Upper tolerance:')
+		self.UpperToleranceLabel.grid(column=4, row=3)
+
+		self.UpperToleranceEntry = Entry(root)
+		self.UpperToleranceEntry.grid(column=5, row=3, sticky='w')
+
+		self.LowerToleranceLabel = Label(root, text='Lower tolerance:')
+		self.LowerToleranceLabel.grid(column=6, row=3)
+
+		self.LowerToleranceEntry = Entry(root)
+		self.LowerToleranceEntry.grid(column=7, row=3, padx=10)
 
 		self.calc_button = Button(root, text="Get Statistics", command=self.Statistics)
 		self.calc_button.configure(width=15)
-		self.calc_button.grid(column=4, row=3,  padx=10)
+		self.calc_button.grid(column=4, row=4,  padx=10)
 
 		self.trend = Button(root, text="Show Trend Line", command=self.TrendLine)
 		self.trend.configure(width=15)
-		self.trend.grid(column=5, row=3,  padx=10)
+		self.trend.grid(column=5, row=4,  padx=10)
 
 		self.predict = Button(root, text="Predictive Tools", command=self.Predictions)
 		self.predict.configure(width=15)
-		self.predict.grid(column=6, row=3,  padx=10)
-
-		self.progressbar = Progressbar(root, orient=HORIZONTAL, length=200)
-		self.progressbar.configure(mode='indeterminate')
-		self.progressbar.grid(column=5, row=6, sticky='se')
-		self.progressbar_label = Label(root, text='Progress:')
-		self.progressbar_label.grid(column=4, row=6, sticky='se')
+		self.predict.grid(column=6, row=4,  padx=10)
 
 		self.quit_button = Button(root, text='Quit', command=self.Quit)
 		self.quit_button.configure(width=15)
-		self.quit_button.grid(column=6, row=0, padx=10)
+		self.quit_button.grid(column=7, row=0, padx=10)
+
+		self.refresh_button = Button(root, text='Refresh', command=self.Refresh)
+		self.refresh_button.configure(width=15)
+		self.refresh_button.grid(column=6, row=0, padx = 10)
 
 		self.message = Message(root)
-		self.message.grid(column=4, row=4, columnspan=3, rowspan=2)
-
-		messagebox.showinfo(title="Welcome", message="Welcome to the ARC Quality Control Analysis Software. \
-		Please note that no analytical tools are available at this time, as the program is under construction.")
+		self.message.grid(column=4, row=5, columnspan=3, rowspan=3)
 
 	def Statistics(self):
 		for selection in self.selection_list:
@@ -197,11 +213,28 @@ class RenolitGUI:
 
 		x_ = row['Dates'].values
 		y_ = row['Avg'].values
+		units = row['Measurement'].values
 		fig, ax = plt.subplots()
+		title = self.PlotTitle.get()
 		ax.plot(x_, y_, 'bo')
+
+		upper = float(self.UpperToleranceEntry.get())
+		lower = float(self.LowerToleranceEntry.get())
+		values_list = row['Avg'].tolist()
+		values = []
+		for i in values_list:
+			i = float(i)
+			values.append(i)
+		for value in values:
+			if value < lower or value > upper:
+				new_row = df.loc[df['Avg'] == value]
+				report = new_row[['Order:', 'PH Mat. No.', 'Charac.']]
+				print(report)
+				self.message.config(text=str(report))
+
+		plt.title(str(title))
 		# plt.legend()
-		plt.title(str(qc_characteristic))
-		plt.ylabel(str())
+		plt.ylabel(str(units[0]))
 		ax.xaxis.set_major_locator(years)
 		ax.xaxis.set_major_formatter(yrsformatter)
 		ax.xaxis.set_minor_locator(months)
@@ -227,6 +260,7 @@ class RenolitGUI:
 					pass
 			for j in self.selection_list:
 				print(j)
+				self.message.config(text=j)
 			print("---------")
 		except:
 			pass
@@ -256,6 +290,9 @@ class RenolitGUI:
 			self.legend_list = []
 			print("------------")
 
+	def Refresh(self):
+		self.PlotTitle.focus()
+
 	def Quit(self):
 		figs = list(map(plt.figure, plt.get_fignums()))
 		for i in figs:
@@ -272,6 +309,8 @@ root.rowconfigure(3, weight =1)
 root.rowconfigure(4, weight =1)
 root.rowconfigure(5, weight =1)
 root.rowconfigure(6, weight=1)
+root.rowconfigure(7, weight=1)
+root.rowconfigure(7, weight=1)
 root.columnconfigure(0, weight=1)
 root.columnconfigure(1, weight=1)
 root.columnconfigure(2, weight=1)
