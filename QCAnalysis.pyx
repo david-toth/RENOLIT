@@ -1,5 +1,5 @@
 from imports import *
-
+# import QCAnalysis
 root = Tk ()
 tqdm.pandas()
 
@@ -39,7 +39,7 @@ start_time = time.time()
 print("Loading Database...Wait time is approximately 3 minutes")
 # article_xlsx = pd.ExcelFile(database_path)
 df_articles = pd.read_excel(database_path, 'QC Data')
-df = df_articles
+df_database = df_articles
 articlelist = df_articles['PH Mat. No.'].tolist()
 for i in articlelist:
 	if type(i) is str and i not in article_list:
@@ -118,24 +118,24 @@ class RenolitGUI:
 		self.checkbox_article = Checkbutton(root, text='Article No.', variable=self.var2)
 		self.checkbox_article.grid(column=6, row=1,padx=5)
 
+		self.DateLabel = Label(root, text='Date range (YYYY-MM-DD):')
+		self.DateLabel.grid(column=4, row=2, padx=(0,10))
+
+		self.DateEntry1 = Entry(root)
+		self.DateEntry1.grid(column=5, row=2, sticky='e')
+		self.DateEntry1.focus()
+
+		self.DateToLabel = Label(root, text='to')
+		self.DateToLabel.grid(column=6, row=2)
+
+		self.DateEntry2 = Entry(root)
+		self.DateEntry2.grid(column=7, row=2, sticky='w')
+
 		self.PlotTitle_Label = Label(root, text="Enter plot title:")
-		self.PlotTitle_Label.grid(column=4, row=2)
+		self.PlotTitle_Label.grid(column=4, row=3)
 
 		self.PlotTitle = Entry(root)
-		self.PlotTitle.grid(column=5, row=2, sticky='w')
-		self.PlotTitle.focus()
-
-		self.UpperToleranceLabel = Label(root, text='Upper tolerance:')
-		self.UpperToleranceLabel.grid(column=4, row=3)
-
-		self.UpperToleranceEntry = Entry(root)
-		self.UpperToleranceEntry.grid(column=5, row=3, sticky='w')
-
-		self.LowerToleranceLabel = Label(root, text='Lower tolerance:')
-		self.LowerToleranceLabel.grid(column=6, row=3)
-
-		self.LowerToleranceEntry = Entry(root)
-		self.LowerToleranceEntry.grid(column=7, row=3, padx=10)
+		self.PlotTitle.grid(column=5, row=3, sticky='w')
 
 		self.calc_button = Button(root, text="Get Statistics", command=self.Statistics)
 		self.calc_button.configure(width=15)
@@ -152,10 +152,6 @@ class RenolitGUI:
 		self.quit_button = Button(root, text='Quit', command=self.Quit)
 		self.quit_button.configure(width=15)
 		self.quit_button.grid(column=7, row=0, padx=10)
-
-		self.refresh_button = Button(root, text='Refresh', command=self.Refresh)
-		self.refresh_button.configure(width=15)
-		self.refresh_button.grid(column=6, row=0, padx = 10)
 
 		self.message = Message(root)
 		self.message.grid(column=4, row=5, columnspan=3, rowspan=3)
@@ -206,42 +202,34 @@ class RenolitGUI:
 			row = df.loc[(df['Charac.'] == qc_characteristic) & (df['PH Mat. No.'] == article_no)]
 			print(row)
 
-		years = YearLocator()
-		months = MonthLocator()
-		yrsformatter = DateFormatter('%Y')
-		mnthsformatter = DateFormatter('%M')
+		row = row.set_index(['Dates'])
+		first_date = str(self.DateEntry1.get())
+		print(first_date)
+		second_date = str(self.DateEntry2.get())
+		print(second_date)
+		row = row.loc[first_date:second_date]
+		print(row)
 
-		x_ = row['Dates'].values
+		x_ = row.index.values
 		y_ = row['Avg'].values
 		units = row['Measurement'].values
 		fig, ax = plt.subplots()
 		title = self.PlotTitle.get()
 		ax.plot(x_, y_, 'bo')
-
-		upper = float(self.UpperToleranceEntry.get())
-		lower = float(self.LowerToleranceEntry.get())
-		values_list = row['Avg'].tolist()
-		values = []
-		for i in values_list:
-			i = float(i)
-			values.append(i)
-		for value in values:
-			if value < lower or value > upper:
-				new_row = df.loc[df['Avg'] == value]
-				report = new_row[['Order:', 'PH Mat. No.', 'Charac.']]
-				print(report)
-				self.message.config(text=str(report))
-
+		ax.legend([str(qc_characteristic)])
 		plt.title(str(title))
-		# plt.legend()
 		plt.ylabel(str(units[0]))
-		ax.xaxis.set_major_locator(years)
-		ax.xaxis.set_major_formatter(yrsformatter)
-		ax.xaxis.set_minor_locator(months)
+		plt.xlabel('Date')
+		ax.xaxis.axis_date()
+		ax.axes.set_xlim(left=first_date, right=second_date)
+		ax.axes.grid(True)
 		self.qc_charac_list = []
 		self.selection_list = []
 		self.legend_list = []
 		fig.autofmt_xdate()
+		mng = plt.get_current_fig_manager()
+		mng.window.state('zoomed')
+		plt.grid()
 		plt.show()
 		plt.close()
 
@@ -290,8 +278,87 @@ class RenolitGUI:
 			self.legend_list = []
 			print("------------")
 
-	def Refresh(self):
-		self.PlotTitle.focus()
+	def UpdateDatabase(self):
+		messagebox.showinfo(title='WARNING', message='If you update the database, all plots will be closed \
+		and the software will be shutdown after the update.')
+
+		figs = list(map(plt.figure, plt.get_fignums()))
+		for i in figs:
+			plt.close(i)
+
+		raw_data = gl.glob("O:/QUALITY/QC Data Project/Raw Data/*")
+		df_rawdata = pd.DataFrame()
+
+		for file in tqdm(raw_data):
+			temp_df = pd.read_excel(file)
+			df_rawdata = df_rawdata.append(temp_df, ignore_index=True)
+		df_rawdata = df_rawdata.drop_duplicates()
+
+		raw_order, raw_charac, raw_poid, raw_rollno = df_rawdata['Order:'].tolist(), df_rawdata['Charac.'].tolist(), df_rawdata['PO ID'].tolist(), df_rawdata['PO lfn'].tolist()
+		order, charac, po_id, roll_no = df["Order:"].tolist(), df['Charac.'].tolist(), df['PO ID'].tolist(), df['PO lfn'].tolist()
+
+		for a,b,c,d in tqdm(zip(raw_order, raw_charac, raw_poid, raw_rollno)):
+			for e,f,g,h in zip(order, charac, po_id, roll_no):
+				if a==e and b==f and c==g and d == h:
+					row = df_rawdata.loc[(df_rawdata["Order:"] == a) & (df_rawdata["Charac."] == b) & (df_rawdata["PO ID"] == c) & (df_rawdata["PO lfn"] == d)]
+					index = row.index
+					df_rawdata = df_rawdata.drop(index)
+
+		year_list = []
+		for i in range(len(df_rawdata.index)):
+			i = 2018
+			year_list.append(i)
+
+		index = df.columns.get_loc('Date create')
+		new_index = index + 1
+
+		df_rawdata.insert(loc=new_index, column='Year', value=year_list)
+
+		dates = df_rawdata['Date create']
+		dates = dates.str[:5]
+		dates = dates.str.replace(".", "-")
+
+		years = df_rawdata['Year']
+		new_dates = dates.astype(str) + '-' + years.astype(str)
+		day = new_dates.str[0:2]
+		month = new_dates.str[3:5]
+		year = new_dates.str[6:]
+
+		new_dates = year.astype(str) + '-' + month.astype(str) + '-' + day.astype(str)
+		df_rawdata['New Dates'] = new_dates
+		datetime = pd.to_datetime(df_rawdata['New Dates'])
+		date_list = datetime.tolist()
+		df_rawdata = df_rawdata.drop(columns=['New Dates'])
+		df_rawdata.insert(loc=(index-1), column='Dates', value=date_list)
+
+		df_rawdata.to_excel('NewDataBase.xlsx')
+		database_df = pd.read_excel('NewDataBase.xlsx')
+		characteristics_list = database_df['Charac.'].tolist()
+
+		for n, i in enumerate(characteristics_list):
+			if i == 'GLOSS 20Ã‚Â° drive side' or i == 'GlOSS 20Ã‚Â° drive side':
+				characteristics_list[n] = 'Gloss 20° drive side'
+			if i == "GLOSS 20Ã‚Â° heat side" or i == "GlOSS 20Ã‚Â° heat side":
+				characteristics_list[n] = "Gloss 20° heat side"
+			if i == 'GLOSS 60Ã‚Â° drive side' or i == 'GlOSS 60Ã‚Â° drive side':
+				characteristics_list[n] = "Gloss 60° drive side"
+			if i == 'GLOSS 60Ã‚Â° heat side' or i == 'GlOSS 60Ã‚Â° heat side':
+				characteristics_list[n] = "Gloss 60° heat side"
+			if i == 'GLOSS 60Ã‚Â°  lacquer drive side' or i == 'GLOSS 60Ã‚Â°  lacquer drive side':
+				characteristics_list[n] = "Gloss 60° lacquer drive side"
+			if i == 'GlOSS 85Ã‚Â° drive side' or i == 'GLOSS 85Ã‚Â° drive side':
+				characteristics_list[n] = "Gloss 85° drive side"
+			if i == "Shrink(10'/70Ã‚Â°) drive side":
+				characteristics_list[n] = "Shrink (10'/70°) drive side"
+			if i == "Shrink(10'/80Ã‚Â°) drive side" or i == "Shrink (10'/80Ã‚Â°) drive side":
+				characteristics_list[n] = "Shrink (10'/80°) drive side"
+			if i == "Shrink(10'/100Ã‚Â°) drive side":
+				characteristics_list[n] = "Shrink (10'/100°) drive side"
+
+		characteristics_list = sorted(characteristics_list)
+		database_df = database_df.drop(columns=['Charac.'])
+		charac_index = database_df.columns.get_loc('Plan No.')
+		database_df.insert(loc=(charac_index-1), column='Charac.', value=characteristics_list)
 
 	def Quit(self):
 		figs = list(map(plt.figure, plt.get_fignums()))
