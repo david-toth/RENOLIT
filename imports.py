@@ -1,7 +1,7 @@
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 import os
-import sys 
+import sys
 import time
 from time import sleep
 from tqdm import tqdm, trange
@@ -17,6 +17,7 @@ import numpy as np
 # import plotly.graph_objs as go
 import matplotlib.pyplot as plt
 from matplotlib.dates import (MONTHLY, DateFormatter, rrulewrapper, RRuleLocator, YearLocator, MonthLocator, DayLocator)
+from matplotlib.font_manager import FontProperties 
 import sklearn as sk
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 from sklearn.model_selection import train_test_split
