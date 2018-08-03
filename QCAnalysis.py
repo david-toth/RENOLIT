@@ -7,7 +7,7 @@ customer_path = "O:/Quality/QC Data Project/ARC customer list - copy.xlsx"
 
 optionlist = [
 				'10% Modulus & Elongation MD aged', "Color Lab DE*", "Elongation at Break MD aged",
-				"Gloss 20° drive side", "Gloss 20° heat side", "Gloss 20° drive side", "Gloss 60° drive side",
+				"Gloss 20° drive side", "Gloss 20° heat side", "Gloss 60° drive side",
 				"Gloss 60° heat side", "Gloss 60° lacquer drive side", "Gloss 85° drive side",
 			 	"Shrink (10'/70°) drive side", "Shrink (10'/80°) drive side", "Shrink (10'/100°) drive side",
 				"Surface Tension corona", "Tensile stress at break MD aged", "Thickness drive side",
@@ -129,7 +129,7 @@ class RenolitGUI:
 		self.quit_button.configure(width=15)
 		self.quit_button.grid(column=7, row=0, padx=10)
 
-		self.message = Message(root, height=15, width=15)
+		self.message = Message(root)
 		self.message.grid(column=4, row=5, columnspan=3, rowspan=3)
 
 	def Statistics(self):
@@ -162,6 +162,7 @@ class RenolitGUI:
 		row = row.loc[first_date:second_date]
 		print_data = row[['Order:', 'Charac.', 'Avg']]
 		print(print_data)
+		print('#######################################')
 
 		x_ = row.index.values
 		y_ = row['Avg'].values
@@ -218,7 +219,7 @@ class RenolitGUI:
 			for j in self.selection_list:
 				print(j)
 				self.message.config(text=j)
-			print("---------")
+			print('#######################################')
 		except:
 			pass
 
@@ -232,7 +233,7 @@ class RenolitGUI:
 					self.selection_list.remove(value)
 				for j in self.selection_list:
 					print(j)
-				print("---------")
+				print('#######################################')
 			except IndexError:
 				return
 			if self is self.customer_menu:
@@ -245,7 +246,7 @@ class RenolitGUI:
 			self.selection_list = []
 			self.qc_charac_list = []
 			self.legend_list = []
-			print("------------")
+			print('#######################################')
 
 	def UpdateDatabase(self):
 		messagebox.showinfo(title='WARNING', message='If you update the database, all plots will be closed \
@@ -339,7 +340,7 @@ class RenolitGUI:
 		plt.close("all")
 		root.destroy()
 
-root.title("American RENOLIT Corp. - Quality Control BETA")
+root.title("American RENOLIT Corp. - Quality Control v0.1")
 root.rowconfigure(0, weight =1)
 root.rowconfigure(1, weight =1)
 root.rowconfigure(2, weight =1)
