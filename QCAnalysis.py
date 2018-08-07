@@ -3,7 +3,6 @@ from imports import *
 root = Tk ()
 
 database_path = "O:/Quality/QC Data Project/CleanDataBase.xlsx"
-customer_path = "O:/Quality/QC Data Project/ARC customer list - copy.xlsx"
 
 optionlist = [
 				'10% Modulus & Elongation MD aged', "Color Lab DE*", "Elongation at Break MD aged",
