@@ -174,6 +174,7 @@ class RenolitGUI:
 			selection = widget.curselection()
 			for i in selection:
 				value = widget.get(i)
+				# Add characteristic variable conversions here:
 				if value not in self.selection_list:
 					self.selection_list.append(value)
 				else:
